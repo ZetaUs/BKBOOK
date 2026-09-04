@@ -9,115 +9,45 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Consolas", monospace;
         }
-        body {
-            width: 100vw;
-            height: 100vh;
-            background: url("ZetaWaveH.png") center/cover no-repeat;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        html, body {
+            height: 100%;
             overflow: hidden;
         }
-        .boot-container {
-            width: 540px;
-        }
-        .header-tip {
-            color: #cccccc;
-            font-size: 14px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        .countdown-text {
-            color: #ffcc00;
-            font-size: 16px;
-            margin-bottom: 18px;
-            text-align: center;
-        }
-        /* 透明毛玻璃菜单面板 */
-        .boot-list {
-            border: 1px solid rgba(80, 80, 80, 0.6);
-            background: rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(6px);
-        }
-        .boot-item {
-            padding: 13px 18px;
-            font-size: 15px;
-            color: #00ff00;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .boot-item.active {
-            background: rgba(0, 100, 0, 0.7);
-            color: #ffffff;
-        }
-        .hint-bottom {
-            margin-top: 26px;
-            color: #aaaaaa;
-            font-size: 13px;
-            line-height: 1.7;
-            text-align: center;
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="boot-container">
-        <div class="countdown-text">倒计时：<span id="timer">10</span> 秒后自动启动【七下】</div>
-        <div class="boot-list" id="bootMenu">
-            <div class="boot-item active" data-link="./七下">七下（默认启动）</div>
-        </div>
-        <div class="hint-bottom">
-            Enter 确认启动 | 点击选项直接跳转 | 等待倒计时自动运行默认系统
-        </div>
-    </div>
+    <iframe id="mainIframe" src="默认页面地址"></iframe>
+
     <script>
-        const defaultIndex = 0;
-        const waitSecond = 10;
-        let currentIndex = defaultIndex;
-        let timerNum = waitSecond;
-        let timer;
-        const items = document.querySelectorAll('.boot-item');
-        const timerDom = document.getElementById('timer');
-        function updateSelect() {
-            items.forEach((item, idx) => {
-                item.classList.toggle('active', idx === currentIndex);
-            })
-        }
-        function jumpPage(index) {
-            clearInterval(timer);
-            const targetUrl = items[index].dataset.link;
-            window.location.href = targetUrl;
-        }
-        function startCountDown() {
-            clearInterval(timer);
-            timer = setInterval(() => {
-                timerNum--;
-                timerDom.innerText = timerNum;
-                if (timerNum <= 0) {
-                    jumpPage(defaultIndex);
-                }
-            }, 1000);
-        }
-        // 键盘操作
-        document.addEventListener('keydown', e => {
-            timerNum = waitSecond;
-            timerDom.innerText = timerNum;
-            startCountDown();
-            if (e.key === 'Enter') {
-                jumpPage(currentIndex);
+        const iframe = document.getElementById('mainIframe');
+        // 哈希对应页面配置
+        const pageMap = {
+            "#七下": "https://zztxtkintel.dpdns.org/BK/七下",
+            "#home": "https://zztxtkintel.dpdns.org/BK"
+        };
+
+        // 更新iframe地址函数
+        function changePage() {
+            const hash = location.hash;
+            if(pageMap[hash]){
+                iframe.src = pageMap[hash];
+            }else{
+                // 无匹配哈希时加载默认页
+                iframe.src = pageMap["#七下"];
             }
-        })
-        // 点击选项立即跳转
-        items.forEach((item, idx) => {
-            item.onclick = () => {
-                currentIndex = idx;
-                updateSelect();
-                jumpPage(idx);
-            }
-        })
-        updateSelect();
-        startCountDown();
+        }
+
+        // 页面初次加载执行一次
+        changePage();
+        // 监听地址栏#哈希变化
+        window.addEventListener('hashchange', changePage);
     </script>
 </body>
 </html>
